@@ -65,6 +65,9 @@ pad_add_my_array_pvn (pTHX_ const char *namepv, STRLEN namelen)
   PL_cop_seqmax++;
 
   av_store(PL_comppad_name, offset, namesv);
+#if PERL_VERSION_GE(5,19,3)
+  PadnamelistMAXNAMED(PL_comppad_name) = offset;
+#endif
 
   return offset;
 }
