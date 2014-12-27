@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.09  2014-12-27 20:18:03Z
   * fix failures on perl 5.19.x (Tony Cook, RT#95283)
 
 0.08  2013-07-31 18:44:37Z
