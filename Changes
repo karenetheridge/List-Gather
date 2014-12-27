@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  * fix failures on perl 5.19.x (Tony Cook, RT#95283)
 
 0.08  2013-07-31 18:44:37Z
   * Add an experimental statement modifier syntax.
