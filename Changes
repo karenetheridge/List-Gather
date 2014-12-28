@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.11  2014-12-28 20:01:49Z
   * fix failures on non-development perls -- ether is very sorry;
    thanks Father Chrysostomos! (RT#101157)
 
