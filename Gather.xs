@@ -60,7 +60,11 @@ static PADOFFSET
 pad_add_my_array_pvn (pTHX_ const char *namepv, STRLEN namelen)
 {
   PADOFFSET offset;
+#ifdef newPADNAMEpvn
   PADNAME *namesv;
+#else
+  SV *namesv;
+#endif
   SV *myvar;
 
   myvar = *av_fetch(PL_comppad, AvFILLp(PL_comppad) + 1, 1);
