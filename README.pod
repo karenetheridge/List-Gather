@@ -8,7 +8,7 @@ List::Gather - Construct lists procedurally without temporary variables
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -179,13 +179,17 @@ the same terms as the Perl 5 programming language system itself.
 
 =head1 CONTRIBUTORS
 
-=for stopwords Karen Etheridge Tony Cook
+=for stopwords Karen Etheridge Father Chrysostomos Tony Cook
 
 =over 4
 
 =item *
 
 Karen Etheridge <ether@cpan.org>
+
+=item *
+
+Father Chrysostomos <sprout@cpan.org>
 
 =item *
 
