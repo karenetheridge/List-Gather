@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  * fix failures on non-development perls -- ether is very sorry;
+   thanks Father Chrysostomos! (RT#101157)
 
 0.10  2014-12-28 05:09:20Z
   * fix failures on perl 5.21.7 (Father Chrysostomos, RT#101157)
