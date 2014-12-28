@@ -7,10 +7,17 @@
 #define SVt_PADNAME SVt_PVMG
 
 #ifndef COP_SEQ_RANGE_LOW_set
-# define COP_SEQ_RANGE_LOW_set(sv,val) \
+# ifdef newPADNAMEpvn
+#  define COP_SEQ_RANGE_LOW_set(sv,val) \
+  do { (sv)->xpadn_low = (val); } while (0)
+#  define COP_SEQ_RANGE_HIGH_set(sv,val) \
+  do { (sv)->xpadn_high = (val); } while (0)
+# else
+#  define COP_SEQ_RANGE_LOW_set(sv,val) \
   do { ((XPVNV *)SvANY(sv))->xnv_u.xpad_cop_seq.xlow = val; } while (0)
-# define COP_SEQ_RANGE_HIGH_set(sv,val) \
+#  define COP_SEQ_RANGE_HIGH_set(sv,val) \
   do { ((XPVNV *)SvANY(sv))->xnv_u.xpad_cop_seq.xhigh = val; } while (0)
+# endif
 #endif
 
 #ifndef PERL_PADSEQ_INTRO
@@ -43,13 +50,18 @@
 #define lex_stuff_pvs_(s, flags) \
   lex_stuff_pvn_((""s""), sizeof(""s"")-1, (flags))
 
+#ifndef padnamelist_store
+# define padnamelist_store av_store
+#endif
+
 #define QPARSE_DIRECTLY PERL_VERSION_GE(5,13,8)
 
 static PADOFFSET
 pad_add_my_array_pvn (pTHX_ const char *namepv, STRLEN namelen)
 {
   PADOFFSET offset;
-  SV *namesv, *myvar;
+  PADNAME *namesv;
+  SV *myvar;
 
   myvar = *av_fetch(PL_comppad, AvFILLp(PL_comppad) + 1, 1);
   sv_upgrade(myvar, SVt_PVAV);
@@ -57,14 +69,18 @@ pad_add_my_array_pvn (pTHX_ const char *namepv, STRLEN namelen)
   SvPADMY_on(myvar);
 
   PL_curpad = AvARRAY(PL_comppad);
+#ifdef newPADNAMEpvn
+  namesv = newPADNAMEpvn(namepv, namelen);
+#else
   namesv = newSV_type(SVt_PADNAME);
   sv_setpvn(namesv, namepv, namelen);
+#endif
 
   COP_SEQ_RANGE_LOW_set(namesv, PL_cop_seqmax);
   COP_SEQ_RANGE_HIGH_set(namesv, PERL_PADSEQ_INTRO);
   PL_cop_seqmax++;
 
-  av_store(PL_comppad_name, offset, namesv);
+  padnamelist_store(PL_comppad_name, offset, namesv);
 #if PERL_VERSION_GE(5,19,3)
   PadnamelistMAXNAMED(PL_comppad_name) = offset;
 #endif
@@ -144,12 +160,12 @@ gen_take_op (pTHX_ OP *listop, PADOFFSET gatherer_offset)
 {
   OP *takeop;
 
-  NewOpSz(0, takeop, sizeof(UNOP));
+  NewOpSz(0, takeop, sizeof(LISTOP));
   takeop->op_type = OP_SPLICE;
   takeop->op_ppaddr = pp_take;
   takeop->op_targ = gatherer_offset;
   cUNOPx(takeop)->op_flags = OPf_KIDS;
-  cUNOPx(takeop)->op_first = listop;
+  cLISTOPx(takeop)->op_first = cLISTOPx(takeop)->op_last = listop;
 
   return takeop;
 }
@@ -195,20 +211,24 @@ myck_entersub_gatherer_intro (pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 static OP *
 myck_entersub_gather (pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 {
-  OP *rv2cvop, *pushop, *blkop;
+  OP *rv2cvop, *pushop, *blkop, *parent;
 
   PERL_UNUSED_ARG(namegv);
   PERL_UNUSED_ARG(protosv);
 
-  pushop = cUNOPx(entersubop)->op_first;
+  pushop = cUNOPx((parent = entersubop))->op_first;
   if (!pushop->op_sibling)
-    pushop = cUNOPx(pushop)->op_first;
+    pushop = cUNOPx((parent = pushop))->op_first;
 
   blkop = pushop->op_sibling;
 
+#ifdef op_sibling_splice
+  op_sibling_splice(parent, pushop, 1, NULL);
+#else
   rv2cvop = blkop->op_sibling;
   blkop->op_sibling = NULL;
   pushop->op_sibling = rv2cvop;
+#endif
   op_free(entersubop);
 
   return blkop;
@@ -238,8 +258,12 @@ myck_entersub_take (pTHX_ OP *entersubop, GV *namegv, SV *protosv)
     lastop = lastop->op_sibling;
   rv2cvop = lastop->op_sibling;
 
+#ifdef op_sibling_splice
+  op_sibling_splice(listop, lastop, -1, NULL);
+#else
   lastop->op_sibling = NULL;
   cLISTOPx(listop)->op_last = lastop;
+#endif
   op_free(rv2cvop);
 
   return gen_take_op(aTHX_ listop, gatherer_offset);
