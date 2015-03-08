@@ -12,5 +12,6 @@
 /*.c
 /*.o
 /blib/
+/_eumm/
 /callchecker0.h
 /callparser.h
