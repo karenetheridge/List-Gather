@@ -6,10 +6,11 @@ use MMHelper;
 
 extends 'Dist::Zilla::Plugin::MakeMaker::Awesome';
 
-override _build_MakeFile_PL_template => sub {
-    my ($self) = @_;
+around _build_MakeFile_PL_template => sub {
+    my $self = shift;
+    my $orig = shift;
 
-    my $tmpl = super();
+    my $tmpl = $self->$orig(@_);
 
     my $ccflags = MMHelper::ccflags_dyn();
     $tmpl =~ s/^(WriteMakefile\()/\$WriteMakefileArgs{CCFLAGS} = $ccflags;\n\n$1/m;
@@ -22,12 +23,12 @@ override _build_MakeFile_PL_template => sub {
     return $tmpl;
 };
 
-override _build_WriteMakefile_args => sub {
-    my ($self) = @_;
-    my $args = super();
+around _build_WriteMakefile_args => sub {
+    my $self = shift;
+    my $orig = shift;
 
     return {
-        %{ $args },
+        %{ $self->$orig(@_) },
         MMHelper::mm_args(),
     };
 };
