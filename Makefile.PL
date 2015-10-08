@@ -9,6 +9,7 @@ eval MMHelper::header_generator() or die $@;
 
 WriteMakefile(
     NAME     => 'List::Gather',
+    VERSION_FROM => 'lib/List/Gather.pm',
     NORECURS => 1,
     CCFLAGS  => MMHelper::ccflags_static('dev'),
     MMHelper::mm_args(),
