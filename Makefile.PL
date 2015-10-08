@@ -3,6 +3,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 use lib 'inc';
+use ExtUtils::MakeMaker::Dist::Zilla::Develop;
 use MMHelper;
 
 eval MMHelper::header_generator() or die $@;
