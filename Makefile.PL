@@ -12,5 +12,7 @@ WriteMakefile(
     VERSION_FROM => 'lib/List/Gather.pm',
     NORECURS => 1,
     CCFLAGS  => MMHelper::ccflags_static('dev'),
+    INSTALLMAN1DIR => 'none',
+    INSTALLMAN3DIR => 'none',
     MMHelper::mm_args(),
 );
