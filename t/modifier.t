@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More;
+use Test::More 0.88;
 
 BEGIN {
     plan skip_all => 'statement modifier syntax not supported on versions of perl before 5.13.8'
