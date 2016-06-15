@@ -13,7 +13,7 @@ use XSLoader;
 
 XSLoader::load(
     __PACKAGE__,
-    $List::Gather::{VERSION} ? ${ $List::Gather::{VERSION} } : (),
+    $VERSION,
 );
 
 require B::Hooks::EndOfScope
