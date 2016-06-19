@@ -16,3 +16,6 @@ WriteMakefile(
     CCFLAGS => ( $Config::Config{ccflags} || '' ) . ' -I. -Wall -Wdeclaration-after-statement',
     _mm_args(),
 );
+
+use Devel::PPPort;
+Devel::PPPort::WriteFile() if not -f 'ppport.h';

@@ -3,6 +3,7 @@
 #include "callchecker0.h"
 #include "callparser.h"
 #include "XSUB.h"
+#include "ppport.h"
 
 #define SVt_PADNAME SVt_PVMG
 
