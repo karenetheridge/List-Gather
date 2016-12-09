@@ -170,7 +170,12 @@ gen_take_op (pTHX_ OP *listop, PADOFFSET gatherer_offset)
   takeop->op_ppaddr = pp_take;
   takeop->op_targ = gatherer_offset;
   cUNOPx(takeop)->op_flags = OPf_KIDS;
+#ifdef op_sibling_splice
+  cLISTOPx(takeop)->op_first = cLISTOPx(takeop)->op_last = NULL;
+  op_sibling_splice(takeop, NULL, 0, listop);
+#else
   cLISTOPx(takeop)->op_first = cLISTOPx(takeop)->op_last = listop;
+#endif
 
   return takeop;
 }
@@ -183,20 +188,28 @@ static OP *(*methodwrapper_nxck_entersub)(pTHX_ OP *o);
 static OP *
 methodwrapper_myck_entersub (pTHX_ OP *entersubop)
 {
+  OP *parent = entersubop;
   OP *pushop, *sigop, *realop, *methop;
 
   pushop = cUNOPx(entersubop)->op_first;
-  if(!pushop->op_sibling)
+  if(!OpHAS_SIBLING(pushop)) {
+    parent = pushop;
     pushop = cUNOPx(pushop)->op_first;
+  }
 
-  if((sigop = pushop->op_sibling) && sigop->op_type == OP_CONST &&
+  if( (sigop = OpSIBLING(pushop)) && sigop->op_type == OP_CONST &&
      cSVOPx_sv(sigop) == methodwrapper_sv &&
-     (realop = sigop->op_sibling) &&
-     (methop = realop->op_sibling) &&
-     !methop->op_sibling &&
-     methop->op_type == OP_METHOD_NAMED) {
+     (realop = OpSIBLING(sigop)) &&
+     (methop = OpSIBLING(realop)) &&
+     !OpHAS_SIBLING(methop) &&
+     methop->op_type == OP_METHOD_NAMED)
+  {
+#ifdef op_sibling_splice
+    op_sibling_splice(parent, sigop, 1, NULL);
+#else
     sigop->op_sibling = realop->op_sibling;
     realop->op_sibling = NULL;
+#endif
     op_free(entersubop);
     return realop;
   }
@@ -222,10 +235,10 @@ myck_entersub_gather (pTHX_ OP *entersubop, GV *namegv, SV *protosv)
   PERL_UNUSED_ARG(protosv);
 
   pushop = cUNOPx((parent = entersubop))->op_first;
-  if (!pushop->op_sibling)
+  if (!OpHAS_SIBLING(pushop))
     pushop = cUNOPx((parent = pushop))->op_first;
 
-  blkop = pushop->op_sibling;
+  blkop = OpSIBLING(pushop);
 
 #ifdef op_sibling_splice
   op_sibling_splice(parent, pushop, 1, NULL);
@@ -259,9 +272,9 @@ myck_entersub_take (pTHX_ OP *entersubop, GV *namegv, SV *protosv)
   op_free(entersubop);
 
   lastop = cLISTOPx(listop)->op_first;
-  while (lastop->op_sibling != cLISTOPx(listop)->op_last)
-    lastop = lastop->op_sibling;
-  rv2cvop = lastop->op_sibling;
+  while (OpSIBLING(lastop) != cLISTOPx(listop)->op_last)
+    lastop = OpSIBLING(lastop);
+  rv2cvop = OpSIBLING(lastop);
 
 #ifdef op_sibling_splice
   op_sibling_splice(listop, lastop, -1, NULL);
