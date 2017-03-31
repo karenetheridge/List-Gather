@@ -4,7 +4,7 @@ use Test::More 0.88;
 
 BEGIN {
     plan skip_all => 'statement modifier syntax not supported on versions of perl before 5.13.8'
-        if $] < 5.013008;
+        if "$]" < 5.013008;
 }
 
 use List::Gather;

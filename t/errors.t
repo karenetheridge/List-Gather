@@ -39,7 +39,7 @@ like $@, qr/^gathered called as a function/;
 eval 'gather(while (0) {});';
 like $@, qr/syntax error/;
 
-if ($] < 5.013008) {
+if ("$]" < 5.013008) {
     eval 'gather while (0) { };';
     like $@, qr/syntax error/;
 }
