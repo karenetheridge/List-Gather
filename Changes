@@ -1,6 +1,8 @@
 Revision history for List-Gather
 
 {{$NEXT}}
+  * fixes for perl 5.25.1 for manipulation of op_sibling (RT#116694; thanks,
+    Dave Mitchell!)
 
 0.12  2015-01-03 20:38:19Z
   * re-release to fix problematic $VERSION declaration (RT#101095)
