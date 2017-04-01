@@ -4,7 +4,7 @@ package List::Gather;
 use strict;
 use warnings;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use Devel::CallParser;
 use Devel::CallChecker;
