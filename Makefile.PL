@@ -17,5 +17,5 @@ WriteMakefile(
     _mm_args(),
 );
 
-use Devel::PPPort;
+use Devel::PPPort 3.3202;
 Devel::PPPort::WriteFile() if not -f 'ppport.h';
