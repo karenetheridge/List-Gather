@@ -86,7 +86,7 @@ C<gather> returns the list of values taken during its block's execution.
       $graph->visit_all_nodes_recursively(sub {
           my ($node) = @_;
           take $node if $node->is_leaf;
-      }
+      });
   };
 
 =func gather
