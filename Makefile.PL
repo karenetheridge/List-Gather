@@ -17,5 +17,7 @@ WriteMakefile(
     _mm_args(),
 );
 
-use Devel::PPPort 3.3202;
-Devel::PPPort::WriteFile() if not -f 'ppport.h';
+# uncomment to update ppport.h, see suggestions
+#use Devel::PPPort 3.3202;
+#Devel::PPPort::WriteFile();
+#system("$^X ppport.h --compat-version=5.012 --quiet *.xs *.[hc]");
